@@ -39,7 +39,7 @@ void display(const Mat& image) {
 
 
 // Returns regions that were divided by edges
-vector<Mat> getRegions(Mat& in) {
+void getRegions(Mat& in) {
 	vector<Mat> ret;
 	// Go through all white pixels and
 	// for (int col=0; col < in.cols; col++) {
@@ -57,7 +57,6 @@ vector<Mat> getRegions(Mat& in) {
 		drawContours(dst, contours, iter, Scalar(0,0,255), FILLED);
 		display(dst);
 	}
-	return ret;
 }
 
 
@@ -69,6 +68,6 @@ int main(int argc, char** argv ) {
 	Mat img, greyImg;
 	getImage( img, argv[1] );
 	cvtColor(img, greyImg, COLOR_BGR2GRAY, 1);
-	vector<Mat> regions = getRegions(greyImg);
+	getRegions(greyImg);
     return 0;
 }
