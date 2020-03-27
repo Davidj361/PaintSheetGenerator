@@ -1,6 +1,3 @@
-/* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!! Programmed by David Jatczak !!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
 #include <iostream>
 #include <exception>
 #include <vector>
