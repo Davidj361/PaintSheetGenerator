@@ -9,13 +9,12 @@
 #include <limits>
 #include <opencv2/opencv.hpp>
 #include <opencv2/imgproc.hpp>
-#include <opencv2/xfeatures2d/nonfree.hpp>
 
 using namespace std;
 using namespace cv;
-using namespace cv::xfeatures2d;
 
 using uint = unsigned int;
+using uchar = unsigned char;
 const string TITLE = "TEST";
 
 
@@ -38,13 +37,38 @@ void display(const Mat& image) {
 }
 
 
+
+// Returns regions that were divided by edges
+vector<Mat> getRegions(Mat& in) {
+	vector<Mat> ret;
+	// Go through all white pixels and
+	// for (int col=0; col < in.cols; col++) {
+	// 	for (int row=0; row < in.rows; row++) {
+	// 		//if (in.at<uchar>(row, col) == 0)
+	// 	}
+	// }
+
+	vector<Mat> contours;
+	vector<Vec4i> hier;
+	threshold(in, in, 125, 255, THRESH_BINARY_INV);
+	findContours(in, contours, hier, RETR_TREE , CHAIN_APPROX_NONE);
+	for (uint iter = 0; iter < contours.size(); iter++) {
+		Mat dst = Mat::zeros(in.rows, in.cols, CV_8UC3);
+		drawContours(dst, contours, iter, Scalar(0,0,255), FILLED);
+		display(dst);
+	}
+	return ret;
+}
+
+
 int main(int argc, char** argv ) {
     if ( argc != 2 ) {
 		cout << "usage: <prog> <image>" << endl;
         return -1;
     }
-	Mat img;
+	Mat img, greyImg;
 	getImage( img, argv[1] );
-	display(img);
+	cvtColor(img, greyImg, COLOR_BGR2GRAY, 1);
+	vector<Mat> regions = getRegions(greyImg);
     return 0;
 }
