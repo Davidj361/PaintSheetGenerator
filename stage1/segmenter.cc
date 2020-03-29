@@ -14,6 +14,15 @@ using namespace cv;
 
 using uint = unsigned int;
 
+
+void getImage(Mat& in, const char* s) {
+	in = imread(s, 1);
+	if (!in.data) {
+		throw runtime_error("No input file");
+	}
+}
+
+
 /*
 Attempts to segment an image using only edge detection
 params:
@@ -85,9 +94,15 @@ int kmeans_then_edges(Mat img, Mat& result) {
 	
 	
 }
-int main() {
+
+
+int main(int argc, char** argv) {
 	Mat img, result_edge, result_kmeans;
-	img = imread("tree1_ca.jpg", 1);
+	if (argc != 2) {
+		cout << "usage: <prog> <image>" << endl;
+		return -1;
+	}
+	getImage(img, argv[1]);
 	imshow("input", img);
 
 	edge_only(img, result_edge);
