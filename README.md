@@ -2,4 +2,7 @@
 
 CMakeLists.txt is an example CMake file
 
-In Linux to run: cmake CMakeLists.txt && make && ./app
+In Linux to use CMake:
+- mkdir build && cd build
+- cmake ..
+- make

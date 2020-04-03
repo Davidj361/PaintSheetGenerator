@@ -1,3 +1,6 @@
+#ifndef SEGMENTER_H
+#define SEGMENTER_H
+
 #include <iostream>
 #include <exception>
 #include <vector>
@@ -13,9 +16,6 @@ using namespace std;
 using namespace cv;
 
 
-const string TITLE = "TEST";
-
-
 /*
 Class: Segment
 
@@ -26,8 +26,8 @@ public:
 	Segment(Vec3f);
 	int addPoint(Point);
 	vector<Point> getPoints();
-	Vec3f getColour();
-	Point getCenter();
+	Vec3f getColour() const;
+	Point getCenter() const;
 	void setCenter(Point);
 	Mat asBinaryMat(Size);
 	Mat asMat(Size);
@@ -38,8 +38,8 @@ private:
 };
 
 vector<Point> Segment::getPoints() { return this->points; }
-Vec3f Segment::getColour() { return this->colour;  }
-Point Segment::getCenter() { return this->center;  }
+Vec3f Segment::getColour() const { return this->colour;  }
+Point Segment::getCenter() const { return this->center;  }
 void Segment::setCenter(Point point) { this->center = point; }
 
 Segment::Segment(){}
@@ -63,6 +63,8 @@ Mat Segment::asBinaryMat(Size size) {
 
 
 
+
+
 Mat Segment::asMat(Size size) {
 	Mat image = Mat(size, CV_8UC3, Vec3b(0, 0, 0));
 	for (Point point : this->points) {
@@ -77,11 +79,10 @@ Class: Segmenter
 */
 class Segmenter {
 public:
-	Segmenter(Mat);
+	Segmenter(Mat, size_t);
 	Segmenter();
-	int findSegments();
+	int findSegments(size_t);
 	vector<Segment> getSegments();
-	int getKmeansImage(Mat&);
 private:
 	int segmentColours(int);
 	int splitSegment(Segment, vector<Segment>&);
@@ -93,19 +94,12 @@ private:
 };
 
 Segmenter::Segmenter() {}
-Segmenter::Segmenter(Mat image) {
+Segmenter::Segmenter(Mat image, size_t k) {
 	this->image = image;
-	this->findSegments();
+	this->findSegments(k);
 }
 vector<Segment> Segmenter::getSegments() { return this->segments; }
 
-int Segmenter::getKmeansImage(Mat& result) {
-	for (Segment segment : this->segments) {
-		assert(result.size() == this->image.size());
-		result += segment.asMat(this->image.size());	
-	}
-	return 0;
-}
 //Splits a segment into it's strongly connected components
 //Only relevent when multiple segments per colour
 int Segmenter::splitSegment(Segment segment, vector<Segment>& splitSegments) {
@@ -126,7 +120,7 @@ int Segmenter::splitSegment(Segment segment, vector<Segment>& splitSegments) {
 			if (int(binaryImage.at<uchar>(point)) == 255) {
 				int label = labels.at<int>(point);
 				//Ignore segments < 1% of picture
-				if (stats.at<int>(label, 4) > 0.005*(double(this->image.rows) * double(this->image.cols))) {
+				if (stats.at<int>(label, 4) > 0.01*(double(this->image.rows* this->image.cols))) {
 					if (segmentsMap.count(label) == 0) {
 						Segment newSegment = Segment(segment.getColour());
 						newSegment.setCenter(Point(int(centroids.at<double>(label, 0)), int(centroids.at<double>(label, 1))));
@@ -183,20 +177,13 @@ int Segmenter::segmentColours(int k) {
 			i++;
 		}
 	}
-
-
 	return 0;
 }
 
 
 
-int Segmenter::findSegments() {
+int Segmenter::findSegments(size_t k) {
 	assert(!this->image.empty());
-	
-	//TODO: choose k, (algo or slider)
-
-	size_t k = 3;
-
 
 	segmentColours(k);
 	assert(this->segments.size() == k);
@@ -213,55 +200,4 @@ int Segmenter::findSegments() {
 	return 0;
 }
 
-
-void getImage(Mat& in, const char* s) {
-	in = imread(s, 1);
-	if (!in.data) {
-		throw runtime_error("No input file");
-	}
-}
-
-
-void display(const Mat& image, const string title=TITLE) {
-	imshow(title, image);
-	// If Escape is hit, close
-	while (true) {
-		int k = waitKey(10);
-		if (k == 27) break;
-	}
-}
-
-
-/*
-int main(int argc, char** argv) {
-	Mat img, result_edge, result_kmeans;
-	if (argc != 2) {
-		cout << "usage: <prog> <image>" << endl;
-		return -1;
-	}
-	getImage(img, argv[1]);
-	imshow("input", img);
-*/
-
-//Temp main for testing
-int main(int argc, char** argv) {
-	Mat image, imageWithCenters, result;
-
-	getImage(image, argv[1]);
-	display(image);
-	// imageWithCenters = Mat(image.size(), CV_8UC3, Scalar(0,0,0));
-	imageWithCenters = image.clone();
-
-
-	Segmenter segmenter = Segmenter(image);
-	vector<Segment> segments = segmenter.getSegments();
-	
-
-	Mat kmeans = Mat::zeros(image.size(), CV_8UC3);;
-	segmenter.getKmeansImage(kmeans);
-	imshow("kmeans", kmeans);
-
-	display(imageWithCenters, "Markers");
-	waitKey(0);
-	return 0;
-}
+#endif
