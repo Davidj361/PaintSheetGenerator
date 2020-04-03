@@ -12,6 +12,10 @@
 using namespace std;
 using namespace cv;
 
+
+const string TITLE = "TEST";
+
+
 /*
 Class: Segment
 
@@ -199,12 +203,24 @@ int Segmenter::findSegments() {
 	return 0;
 }
 
+
 void getImage(Mat& in, const char* s) {
 	in = imread(s, 1);
 	if (!in.data) {
 		throw runtime_error("No input file");
 	}
 }
+
+
+void display(const Mat& image, const string title=TITLE) {
+	imshow(title, image);
+	// If Escape is hit, close
+	while (true) {
+		int k = waitKey(10);
+		if (k == 27) break;
+	}
+}
+
 
 /*
 int main(int argc, char** argv) {
@@ -218,23 +234,23 @@ int main(int argc, char** argv) {
 */
 
 //Temp main for testing
-int main() {
+int main(int argc, char** argv) {
 	Mat image, imageWithCenters, result;
-	string imagePath = "tree2_ca.jpg";
-	image = imread(imagePath, 1);
-	imageWithCenters = imread(imagePath, 1);
-	imshow("original", image);
+	getImage(image, argv[1]);
+	display(image);
+	// imageWithCenters = Mat(image.size(), CV_8UC3, Scalar(0,0,0));
+	imageWithCenters = image.clone();
 
 	Segmenter segmenter = Segmenter(image);
 	vector<Segment> segments = segmenter.getSegments();
 	
 	int count = 0;
 	for (Segment segment : segments) {
-		imshow(to_string(count), segment.asMat(image.size()));
+		display(segment.asMat(image.size()), to_string(count));
 		drawMarker(imageWithCenters, segment.getCenter(), Scalar(0, 0, 255));
 		count++;
 	}
-	imshow("centers", imageWithCenters);
+	display(imageWithCenters, "Markers");
 	waitKey(0);
 	return 0;
 }
