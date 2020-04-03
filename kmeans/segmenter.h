@@ -83,6 +83,7 @@ public:
 	Segmenter();
 	int findSegments(size_t);
 	vector<Segment> getSegments();
+	int getKmeansImage(Mat&);
 private:
 	int segmentColours(int);
 	int splitSegment(Segment, vector<Segment>&);
@@ -99,6 +100,16 @@ Segmenter::Segmenter(Mat image, size_t k) {
 	this->findSegments(k);
 }
 vector<Segment> Segmenter::getSegments() { return this->segments; }
+
+
+int Segmenter::getKmeansImage(Mat& result) {
+	for (Segment segment : this->segments) {
+		assert(result.size() == this->image.size());
+		result += segment.asMat(this->image.size());	
+	}
+	return 0;
+}
+
 
 //Splits a segment into it's strongly connected components
 //Only relevent when multiple segments per colour
