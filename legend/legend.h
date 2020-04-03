@@ -19,15 +19,12 @@ class Legend {
 public:
 	Legend(Mat& in, const vector<Segment>& segments) : segments(segments) {
 		cvtColor(in, img, COLOR_GRAY2RGB);
-		// for (size_t i=0; i<segments.size(); i++) {
-		// 	Segment s = segments[i];
-		// 	if (findColour(s.getColour()) == -1) {
-		// 		colours.push_back(s);
-		// 	}
-		// }
-		colours = segments;
-		cout << segments.size() << endl;
-		cout << colours.size() << endl;
+		for (size_t i=0; i<segments.size(); i++) {
+			Segment s = segments[i];
+			if (findColour(s.getColour()) == -1) {
+				colours.push_back(s);
+			}
+		}
 	}
 		
 	void createLegend(Mat& dst) {
@@ -52,7 +49,7 @@ public:
 
 		// Create the legend
 		for (size_t i = 0; i < colours.size(); i++) {
-			rectangle(dst, pt1, pt2, Scalar(segments[i].getColour()), -1);
+			rectangle(dst, pt1, pt2, Scalar(colours[i].getColour()), -1);
 			rectangle(dst, pt1, pt2, Scalar::all(0), 1);
 			text.x = pt1.x + 10;
 			text.y = pt2.y;
@@ -79,14 +76,9 @@ private:
 	}
 
 	bool isSameScalar(const Scalar& s, const Scalar& s2) const {
-		// if ( (s[0] - s2[0]) > 0 || (s[1] - s2[1]) > 0 || (s[2] - s2[2]) > 0)
-		//	return false;
-		// return true;
-		if ( s[0] == s2[0] && s[1] == s2[1] && s[2] == s2[2]) {
+		if (s[0] == s2[0] && s[1] == s2[1] && s[2] == s2[2]) {
 			return true;
 		}
-		cout << s << endl;
-		cout << s2 << endl << endl;
 		return false;
 	}
 };
