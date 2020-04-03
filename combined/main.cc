@@ -42,8 +42,9 @@ int main(int argc, char** argv) {
 	}
 	Mat img;
 	getImage(img, argv[1]);
+	const size_t k = static_cast<size_t>(stoi(argv[2]));
 
-	Segmenter segmenter = Segmenter(img);
+	Segmenter segmenter = Segmenter(img, k);
 	vector<Segment> segments = segmenter.getSegments();
 
 	Mat dilation_dst, regionsWithNumbers, result_edge, legendImg;

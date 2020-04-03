@@ -79,9 +79,9 @@ Class: Segmenter
 */
 class Segmenter {
 public:
-	Segmenter(Mat);
+	Segmenter(Mat, size_t);
 	Segmenter();
-	int findSegments();
+	int findSegments(size_t);
 	vector<Segment> getSegments();
 private:
 	int segmentColours(int);
@@ -94,9 +94,9 @@ private:
 };
 
 Segmenter::Segmenter() {}
-Segmenter::Segmenter(Mat image) {
+Segmenter::Segmenter(Mat image, size_t k) {
 	this->image = image;
-	this->findSegments();
+	this->findSegments(k);
 }
 vector<Segment> Segmenter::getSegments() { return this->segments; }
 
@@ -182,11 +182,8 @@ int Segmenter::segmentColours(int k) {
 
 
 
-int Segmenter::findSegments() {
+int Segmenter::findSegments(size_t k) {
 	assert(!this->image.empty());
-	
-	//TODO: choose k, (algo or slider)
-	size_t k = 3;
 
 	segmentColours(k);
 	assert(this->segments.size() == k);
