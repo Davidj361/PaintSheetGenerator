@@ -15,11 +15,88 @@ using namespace std;
 using namespace cv;
 
 
+class Legend {
+public:
+	Legend(Mat& in, const vector<Segment>& segments) : segments(segments) {
+		cvtColor(in, img, COLOR_GRAY2RGB);
+		// for (size_t i=0; i<segments.size(); i++) {
+		// 	Segment s = segments[i];
+		// 	if (findColour(s.getColour()) == -1) {
+		// 		colours.push_back(s);
+		// 	}
+		// }
+		colours = segments;
+		cout << segments.size() << endl;
+		cout << colours.size() << endl;
+	}
+		
+	void createLegend(Mat& dst) {
+		// Put numbers on the actual image
+		for (size_t i = 0; i < segments.size(); i++) {
+			int number = findColour(segments[i].getColour());
+			if (number == -1)
+				throw runtime_error("createLegend broke");
+			putText(img, to_string(number + 1), segments[i].getCenter(), FONT_HERSHEY_DUPLEX, 1.0, Scalar::all(255),2);
+			putText(img, to_string(number + 1), segments[i].getCenter(), FONT_HERSHEY_DUPLEX, 1.0, Scalar::all(0),1);
+		}
+
+		//add padding to bottom and right side of img
+		copyMakeBorder(img, dst, 0, img.rows, 0, img.cols, BORDER_CONSTANT, Scalar::all(255));
+
+		//point pt1 is rectangle top left corner
+		//point pt2 is rectangle bottom right corner
+		//with 20 pixel spacing between subsuqent rectangles vertically
+		Point pt1 = Point(img.cols + 10, 10); 
+		Point pt2 = Point(pt1.x + 10, pt1.y + 10);
+		Point text;
+
+		// Create the legend
+		for (size_t i = 0; i < colours.size(); i++) {
+			rectangle(dst, pt1, pt2, Scalar(segments[i].getColour()), -1);
+			rectangle(dst, pt1, pt2, Scalar::all(0), 1);
+			text.x = pt1.x + 10;
+			text.y = pt2.y;
+			putText(dst, to_string(i+1), text, FONT_HERSHEY_DUPLEX, 0.5, Scalar::all(0));
+
+			pt1.y += 20;
+			pt2.y += 20;
+		}
+	}
+
+private:
+	Mat img;
+	vector<Segment> segments;
+	vector<Segment> colours;
+
+	int findColour(const Scalar& s) const {
+		for (size_t i=0; i<colours.size(); i++) {
+			Scalar s2 = colours[i].getColour();
+			if (isSameScalar(s, s2)) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	bool isSameScalar(const Scalar& s, const Scalar& s2) const {
+		// if ( (s[0] - s2[0]) > 0 || (s[1] - s2[1]) > 0 || (s[2] - s2[2]) > 0)
+		//	return false;
+		// return true;
+		if ( s[0] == s2[0] && s[1] == s2[1] && s[2] == s2[2]) {
+			return true;
+		}
+		cout << s << endl;
+		cout << s2 << endl << endl;
+		return false;
+	}
+};
+
+
 /*
-Attempts to segment an image using only edge detection
-params:
-	img: input image
-	result: output image
+  Attempts to segment an image using only edge detection
+  params:
+  img: input image
+  result: output image
 */
 int edge_only(Mat img, Mat& result) {
 	Mat blur;
@@ -36,10 +113,10 @@ int edge_only(Mat img, Mat& result) {
 }
 
 /*
-Uses kmeans cluster to improve segmentation when finding edges
-params:
-	img: input image
-	result: output image
+  Uses kmeans cluster to improve segmentation when finding edges
+  params:
+  img: input image
+  result: output image
 */
 int myKmeans(Mat img, Mat& result, const int k) {
 	Mat img_data, labels, centers;
@@ -48,25 +125,25 @@ int myKmeans(Mat img, Mat& result, const int k) {
 	img_data = img_data.reshape(1, img.rows * img.cols);
 
 	kmeans(img_data,
-		k,
-		labels,
-		TermCriteria(TermCriteria::Type::MAX_ITER + TermCriteria::Type::EPS, 10, 1.0),
-		10,
-		KMEANS_RANDOM_CENTERS,
-		centers);
+		   k,
+		   labels,
+		   TermCriteria(TermCriteria::Type::MAX_ITER + TermCriteria::Type::EPS, 10, 1.0),
+		   10,
+		   KMEANS_RANDOM_CENTERS,
+		   centers);
 
 	centers = centers.reshape(3);
 	img_data = img_data.reshape(3);
 
 	/*
-	NOTE: This combines the segments into 1 picture but we could just return a list of Mats each element a colour
-		  then segment
+	  NOTE: This combines the segments into 1 picture but we could just return a list of Mats each element a colour
+	  then segment
 	*/
 
 	/*
-	every pixel has a label for what segment it's in
-	we know the centers (colours) of k segements
-	let every pixel be the same colour as the center it shares a label with
+	  every pixel has a label for what segment it's in
+	  we know the centers (colours) of k segements
+	  let every pixel be the same colour as the center it shares a label with
 	*/
 	Vec3f* pixel = img_data.ptr<Vec3f>();
 	for (int i = 0; i < img_data.rows; i++) {
@@ -129,15 +206,6 @@ void getAverageColour(Mat in, vector<Mat> contours, vector<Scalar>& averageColou
 	}
 }
 
-void findCenters(Mat& in, const vector<Segment>& segments, Mat& regionsWithNumbers) {
-	Mat dst;
-	cvtColor(in, dst, COLOR_GRAY2RGB);
-	for (size_t i = 0; i < segments.size(); i++) {
-		putText(dst, to_string(i + 1), segments[i].getCenter(), FONT_HERSHEY_DUPLEX, 1.0, Scalar::all(255),2);
-		putText(dst, to_string(i + 1), segments[i].getCenter(), FONT_HERSHEY_DUPLEX, 1.0, Scalar::all(0),1);
-	}
-	 regionsWithNumbers = dst;
-}
 
 /** @function Dilation */
 void Dilation(Mat in, Mat& dilation_dst, int size, int numTimes){
@@ -155,32 +223,6 @@ void Dilation(Mat in, Mat& dilation_dst, int size, int numTimes){
 		}
 	}
 	
-}
-
-void createLegend(Mat& in, Mat& dst, const vector<Segment>& segments) {
-	//add padding to bottom and right side of img
-	copyMakeBorder(in, dst, 0, in.rows, 0, in.cols, BORDER_CONSTANT, Scalar::all(255));
-
-	cout << segments.size() << endl;
-	//point pt1 is rectangle top left corner
-	//point pt2 is rectangle bottom right corner
-	//with 20 pixel spacing between subsuqent rectangles vertically
-	Point pt1 = Point(in.cols + 10, 10); 
-	Point pt2 = Point(pt1.x + 10, pt1.y + 10);
-	Point text;
-
-	for (size_t i = 0; i < segments.size(); i++) {
-		rectangle(dst, pt1, pt2, Scalar(segments[i].getColour()), -1);
-		rectangle(dst, pt1, pt2, Scalar::all(0), 1);
-		text.x = pt1.x + 10;
-		text.y = pt2.y;
-		putText(dst, to_string(i+1), text, FONT_HERSHEY_DUPLEX, 0.5, Scalar::all(0));
-
-		pt1.y += 20;
-		pt2.y += 20;
-	}
-	
-
 }
 
 #endif

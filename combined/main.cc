@@ -25,7 +25,6 @@ void getImage(Mat& in, const char* s) {
 
 
 void display(const Mat& image) {
-	//namedWindow("Display Image", WINDOW_AUTOSIZE );
 	imshow(TITLE, image);
 	// If Escape is hit, close
 	while (true) {
@@ -46,12 +45,18 @@ int main(int argc, char** argv) {
 
 	Segmenter segmenter = Segmenter(img, k);
 	vector<Segment> segments = segmenter.getSegments();
+	// Mat imageWithCenters = img.clone();
+	// for (Segment segment : segments) {
+	// 	display(segment.asMat(img.size()));
+	// 	drawMarker(imageWithCenters, segment.getCenter(), Scalar(0, 0, 255));
+	// }
+	// display(imageWithCenters);
 
 	Mat dilation_dst, regionsWithNumbers, result_edge, legendImg;
 	edge_only(img, result_edge);
 	Dilation(result_edge, dilation_dst, 3, 2);
-	findCenters(dilation_dst, segments, regionsWithNumbers);
-	createLegend(regionsWithNumbers, legendImg, segments);
+	Legend legend(dilation_dst, segments);
+	legend.createLegend(legendImg);
 	display(legendImg);
 
 	return 0;
