@@ -100,6 +100,7 @@ Segmenter::Segmenter(Mat image) {
 vector<Segment> Segmenter::getSegments() { return this->segments; }
 
 int Segmenter::getKmeansImage(Mat& result) {
+	Mat result = Mat::zeros(image.size(), CV_8UC3);
 	for (Segment segment : this->segments) {
 		assert(result.size() == this->image.size());
 		result += segment.asMat(this->image.size());	
