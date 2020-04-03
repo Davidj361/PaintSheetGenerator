@@ -182,7 +182,7 @@ int Segmenter::findSegments() {
 	assert(!this->image.empty());
 	
 	//TODO: choose k, (algo or slider)
-	int k = 3;
+	size_t k = 3;
 
 	segmentColours(k);
 	assert(this->segments.size() == k);
