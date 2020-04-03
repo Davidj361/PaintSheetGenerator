@@ -7,7 +7,6 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/imgproc.hpp>
 #include "../legend/legend.h"
-#include "../kmeans/segmenter.h"
 
 using namespace std;
 using namespace cv;
@@ -42,27 +41,16 @@ int main(int argc, char** argv) {
 		return -1;
 	}
 	Mat img;
-
 	getImage(img, argv[1]);
-	Mat imageWithCenters = img.clone();
+
 	Segmenter segmenter = Segmenter(img);
 	vector<Segment> segments = segmenter.getSegments();
-	int count = 0;
-	for (Segment segment : segments) {
-		drawMarker(imageWithCenters, segment.getCenter(), Scalar(0, 0, 255));
-		count++;
-	}
 
-	Mat dilation_dst, regionsWithNumbers, legendImg, result_edge;
-	vector<Mat> contours;
-	vector<Scalar> averageColours;
-	vector<Point> points;
+	Mat dilation_dst, regionsWithNumbers, result_edge, legendImg;
 	edge_only(img, result_edge);
 	Dilation(result_edge, dilation_dst, 3, 2);
-	getRegions(dilation_dst, contours);
-	getAverageColour(img, contours, averageColours);
-	findCenters(dilation_dst, contours, points, regionsWithNumbers);
-	createLegend(regionsWithNumbers, legendImg, averageColours);
+	findCenters(dilation_dst, segments, regionsWithNumbers);
+	createLegend(regionsWithNumbers, legendImg, segments);
 	display(legendImg);
 
 	return 0;

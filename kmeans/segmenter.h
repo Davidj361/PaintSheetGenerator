@@ -26,8 +26,8 @@ public:
 	Segment(Vec3f);
 	int addPoint(Point);
 	vector<Point> getPoints();
-	Vec3f getColour();
-	Point getCenter();
+	Vec3f getColour() const;
+	Point getCenter() const;
 	void setCenter(Point);
 	Mat asBinaryMat(Size);
 	Mat asMat(Size);
@@ -38,8 +38,8 @@ private:
 };
 
 vector<Point> Segment::getPoints() { return this->points; }
-Vec3f Segment::getColour() { return this->colour;  }
-Point Segment::getCenter() { return this->center;  }
+Vec3f Segment::getColour() const { return this->colour;  }
+Point Segment::getCenter() const { return this->center;  }
 void Segment::setCenter(Point point) { this->center = point; }
 
 Segment::Segment(){}

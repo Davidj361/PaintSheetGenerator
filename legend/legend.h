@@ -9,6 +9,7 @@
 #include <limits>
 #include <opencv2/opencv.hpp>
 #include <opencv2/imgproc.hpp>
+#include "../kmeans/segmenter.h"
 
 using namespace std;
 using namespace cv;
@@ -128,28 +129,14 @@ void getAverageColour(Mat in, vector<Mat> contours, vector<Scalar>& averageColou
 	}
 }
 
-void findCenters(Mat in, vector<Mat> contours, vector<Point>& points, Mat& regionsWithNumbers) {
-
+void findCenters(Mat& in, const vector<Segment>& segments, Mat& regionsWithNumbers) {
 	Mat dst;
 	cvtColor(in, dst, COLOR_GRAY2RGB);
-
-	for (size_t i = 0; i < contours.size(); i++) {
-		// finds center point of current contour
-		Moments m = moments(contours[i], true);
-		Point p(m.m10 / m.m00, m.m01 / m.m00);
-
-		//add to list of center points
-		points.push_back(p);
-
-		//draw coloured circle and corresponding number
-		//circle(in, p, 10, averageColours[i], -1);
-		//putText(dst, to_string(i + 1), p, FONT_HERSHEY_DUPLEX, 1.0, averageColours[i]);
-		putText(dst, to_string(i + 1), p, FONT_HERSHEY_DUPLEX, 1.0, Scalar::all(255),2);
-		putText(dst, to_string(i + 1), p, FONT_HERSHEY_DUPLEX, 1.0, Scalar::all(0),1);
-
+	for (size_t i = 0; i < segments.size(); i++) {
+		putText(dst, to_string(i + 1), segments[i].getCenter(), FONT_HERSHEY_DUPLEX, 1.0, Scalar::all(255),2);
+		putText(dst, to_string(i + 1), segments[i].getCenter(), FONT_HERSHEY_DUPLEX, 1.0, Scalar::all(0),1);
 	}
 	 regionsWithNumbers = dst;
-
 }
 
 /** @function Dilation */
@@ -170,12 +157,11 @@ void Dilation(Mat in, Mat& dilation_dst, int size, int numTimes){
 	
 }
 
-void createLegend(Mat in, Mat& dst, vector<Scalar> averageColours) {
-	
+void createLegend(Mat& in, Mat& dst, const vector<Segment>& segments) {
 	//add padding to bottom and right side of img
 	copyMakeBorder(in, dst, 0, in.rows, 0, in.cols, BORDER_CONSTANT, Scalar::all(255));
 
-	cout << averageColours.size() << endl;
+	cout << segments.size() << endl;
 	//point pt1 is rectangle top left corner
 	//point pt2 is rectangle bottom right corner
 	//with 20 pixel spacing between subsuqent rectangles vertically
@@ -183,19 +169,15 @@ void createLegend(Mat in, Mat& dst, vector<Scalar> averageColours) {
 	Point pt2 = Point(pt1.x + 10, pt1.y + 10);
 	Point text;
 
-	for (size_t i = 0; i < averageColours.size(); i++) {
-
-		rectangle(dst, pt1, pt2, averageColours[i], -1);
+	for (size_t i = 0; i < segments.size(); i++) {
+		rectangle(dst, pt1, pt2, Scalar(segments[i].getColour()), -1);
 		rectangle(dst, pt1, pt2, Scalar::all(0), 1);
 		text.x = pt1.x + 10;
 		text.y = pt2.y;
 		putText(dst, to_string(i+1), text, FONT_HERSHEY_DUPLEX, 0.5, Scalar::all(0));
 
-
-
 		pt1.y += 20;
 		pt2.y += 20;
-		//display(dst);
 	}
 	
 
