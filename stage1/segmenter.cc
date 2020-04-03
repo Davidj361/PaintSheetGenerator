@@ -116,7 +116,7 @@ int Segmenter::splitSegment(Segment segment, vector<Segment>& splitSegments) {
 			if (int(binaryImage.at<uchar>(point)) == 255) {
 				int label = labels.at<int>(point);
 				//Ignore segments < 1% of picture
-				if (stats.at<int>(label, 4) > 0.01*(this->image.rows* this->image.cols)) {
+				if (stats.at<int>(label, 4) > 0.01*(double(this->image.rows* this->image.cols))) {
 					if (segmentsMap.count(label) == 0) {
 						Segment newSegment = Segment(segment.getColour());
 						newSegment.setCenter(Point(int(centroids.at<double>(label, 0)), int(centroids.at<double>(label, 1))));
@@ -217,6 +217,7 @@ int main(int argc, char** argv) {
 	imshow("input", img);
 */
 
+//Temp main for testing
 int main() {
 	Mat image, imageWithCenters, result;
 	string imagePath = "tree2_ca.jpg";
