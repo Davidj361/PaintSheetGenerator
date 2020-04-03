@@ -12,51 +12,139 @@
 using namespace std;
 using namespace cv;
 
-using uint = unsigned int;
+/*
+Class: Segment
 
+*/
+class Segment {
+public:
+	Segment();
+	Segment(Vec3f);
+	int addPoint(Point);
+	vector<Point> getPoints();
+	Vec3f getColour();
+	Point getCenter();
+	void setCenter(Point);
+	Mat asBinaryMat(Size);
+	Mat asMat(Size);
+private:
+	vector<Point> points;
+	Vec3f colour;
+	Point center;
+};
 
-void getImage(Mat& in, const char* s) {
-	in = imread(s, 1);
-	if (!in.data) {
-		throw runtime_error("No input file");
+vector<Point> Segment::getPoints() { return this->points; }
+Vec3f Segment::getColour() { return this->colour;  }
+Point Segment::getCenter() { return this->center;  }
+void Segment::setCenter(Point point) { this->center = point; }
+
+Segment::Segment(){}
+Segment::Segment(Vec3f colour) {
+	this->points = vector<Point>();
+	this->colour = colour;
+}
+
+int Segment::addPoint(Point point) {
+	this->points.push_back(point);
+	return 0;
+}
+
+Mat Segment::asBinaryMat(Size size) {
+	Mat image = Mat::zeros(size, CV_8U);;
+	for (Point point : this->points) {
+		image.at<uchar>(point) = 255;
 	}
+	return image;
 }
 
 
+
+
+
+Mat Segment::asMat(Size size) {
+	Mat image = Mat(size, CV_8UC3, Vec3b(0, 0, 0));
+	for (Point point : this->points) {
+		image.at<Vec3b>(point) = this->colour;
+	}
+	return image;
+}
+
 /*
-Attempts to segment an image using only edge detection
-params:
-	img: input image
-	result: output image
+Class: Segmenter
+
 */
-int edge_only(Mat img, Mat &result) {
-	Mat blur;
-	int lower_t, upper_t, kernal_width;
+class Segmenter {
+public:
+	Segmenter(Mat);
+	Segmenter();
+	int findSegments();
+	vector<Segment> getSegments();
+private:
+	int segmentColours(int);
+	int splitSegment(Segment, vector<Segment>&);
+	vector<Segment> segments;
+	vector<Vec3f> colours;
+	Mat image;
 
-	lower_t = 10;
-	upper_t = 200;
+
+};
+
+Segmenter::Segmenter() {}
+Segmenter::Segmenter(Mat image) {
+	this->image = image;
+	this->findSegments();
+}
+vector<Segment> Segmenter::getSegments() { return this->segments; }
+
+//Splits a segment into it's strongly connected components
+//Only relevent when multiple segments per colour
+int Segmenter::splitSegment(Segment segment, vector<Segment>& splitSegments) {
+	Mat binaryImage = Mat::zeros(this->image.size(), CV_8U);
+	for (Point point : segment.getPoints()) {
+		binaryImage.at<uchar>(point) = 255;
+	}
+
+	Mat labels, stats, centroids;
+	connectedComponentsWithStats(binaryImage, labels, stats, centroids, 8, CV_32S);
+
+	//Map to store segments since we need to skip background pixels
+	map<int, Segment> segmentsMap;
+	for (int row = 0; row < labels.rows; row++) {
+		for (int col = 0; col < labels.cols; col++) {
+			Point point(col, row);
+			//Ignore the background
+			if (int(binaryImage.at<uchar>(point)) == 255) {
+				int label = labels.at<int>(point);
+				//Ignore segments < 1% of picture
+				if (stats.at<int>(label, 4) > 0.01*(this->image.rows* this->image.cols)) {
+					if (segmentsMap.count(label) == 0) {
+						Segment newSegment = Segment(segment.getColour());
+						newSegment.setCenter(Point(int(centroids.at<double>(label, 0)), int(centroids.at<double>(label, 1))));
+						segmentsMap[label] = newSegment;
+					}
+					segmentsMap[label].addPoint(point);
+				}
+				
+			}
+		}
+	}
+
+	for (auto element : segmentsMap) {
+		splitSegments.push_back(element.second);
+	}
 	
-	kernal_width = 7;
-
-	GaussianBlur(img, blur, Size(kernal_width, kernal_width),0);
-	Canny(blur, result, lower_t, upper_t);
 	return 0;
 }
 
 /*
-Uses kmeans cluster to improve segmentation when finding edges
-params: 
-	img: input image
-	result: output image
+Uses k-means to seperate image into k colours
 */
-int kmeans_then_edges(Mat img, Mat& result) {
+int Segmenter::segmentColours(int k) {
 	Mat img_data, labels, centers;
+	//this->segments = vector<Segment>(k);
 
-	//TODO: calculate k based on how many distinct colours there are
-	int k = 3;
-
-	img.convertTo(img_data, CV_32F);
-	img_data = img_data.reshape(1, img.rows * img.cols);
+	this->image.convertTo(img_data, CV_32F);
+	img_data = img_data.reshape(1, this->image.rows * this->image.cols);
 
 	kmeans(img_data,
 		k,
@@ -69,33 +157,56 @@ int kmeans_then_edges(Mat img, Mat& result) {
 	centers = centers.reshape(3, centers.rows);
 	img_data = img_data.reshape(3, img_data.rows);
 
-	/*
-	NOTE: This combines the segments into 1 picture but we could just return a list of Mats each element a colour
-		  then segment 
-	*/
-
-	/*
-	every pixel has a label for what segment it's in
-	we know the centers (colours) of k segements
-	let every pixel be the same colour as the center it shares a label with
-	*/
-	Vec3f* pixel = img_data.ptr<Vec3f>();
-	for (int i = 0; i < img_data.rows; i++) {
-		int center_label = labels.at<int>(i);
-		pixel[i] = centers.at<Vec3f>(center_label);
+	//create segment for each colour
+	for (int i = 0; i < centers.rows; i++) {
+		Vec3f colour = centers.at<Vec3f>(i);
+		this->segments.push_back(Segment(colour));
+		this->colours.push_back(colour);
 	}
 
-	Mat result_temp = img_data.reshape(3, img.rows);
-	result_temp.convertTo(result_temp, CV_8U);
-	imshow("kmeans", result_temp);
-
-	edge_only(result_temp, result);
+	assert(this->image.rows * this->image.cols == labels.rows);
+	int i = 0;
+	for (int row = 0; row < this->image.size().height; row++) {
+		for (int col = 0; col < this->image.size().width; col++) {
+			int center_label = labels.at<int>(i);
+			this->segments[center_label].addPoint(Point(col, row));
+			i++;
+		}
+	}
 	return 0;
-	
-	
 }
 
 
+
+int Segmenter::findSegments() {
+	assert(!this->image.empty());
+	
+	//TODO: choose k, (algo or slider)
+	int k = 3;
+
+	segmentColours(k);
+	assert(this->segments.size() == k);
+
+	vector<Segment> splitSegments;
+	for (Segment segment : this->segments) {
+		vector<Segment> newSegments;
+		splitSegment(segment, newSegments);
+		splitSegments.insert(splitSegments.end(), newSegments.begin(), newSegments.end());
+	}
+
+	this->segments = splitSegments;
+
+	return 0;
+}
+
+void getImage(Mat& in, const char* s) {
+	in = imread(s, 1);
+	if (!in.data) {
+		throw runtime_error("No input file");
+	}
+}
+
+/*
 int main(int argc, char** argv) {
 	Mat img, result_edge, result_kmeans;
 	if (argc != 2) {
@@ -104,16 +215,25 @@ int main(int argc, char** argv) {
 	}
 	getImage(img, argv[1]);
 	imshow("input", img);
+*/
 
-	edge_only(img, result_edge);
+int main() {
+	Mat image, imageWithCenters, result;
+	string imagePath = "tree2_ca.jpg";
+	image = imread(imagePath, 1);
+	imageWithCenters = imread(imagePath, 1);
+	imshow("original", image);
 
-	if (1) {
-		kmeans_then_edges(img, result_kmeans);
-		imshow("result kmeans", result_kmeans);
+	Segmenter segmenter = Segmenter(image);
+	vector<Segment> segments = segmenter.getSegments();
+	
+	int count = 0;
+	for (Segment segment : segments) {
+		imshow(to_string(count), segment.asMat(image.size()));
+		drawMarker(imageWithCenters, segment.getCenter(), Scalar(0, 0, 255));
+		count++;
 	}
-
-	imshow("result edge only", result_edge);
+	imshow("centers", imageWithCenters);
 	waitKey(0);
-
 	return 0;
 }
