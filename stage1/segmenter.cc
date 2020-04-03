@@ -59,8 +59,6 @@ Mat Segment::asBinaryMat(Size size) {
 
 
 
-
-
 Mat Segment::asMat(Size size) {
 	Mat image = Mat(size, CV_8UC3, Vec3b(0, 0, 0));
 	for (Point point : this->points) {
@@ -79,6 +77,7 @@ public:
 	Segmenter();
 	int findSegments();
 	vector<Segment> getSegments();
+	int getKmeansImage(Mat&);
 private:
 	int segmentColours(int);
 	int splitSegment(Segment, vector<Segment>&);
@@ -96,6 +95,13 @@ Segmenter::Segmenter(Mat image) {
 }
 vector<Segment> Segmenter::getSegments() { return this->segments; }
 
+int Segmenter::getKmeansImage(Mat& result) {
+	for (Segment segment : this->segments) {
+		assert(result.size() == this->image.size());
+		result += segment.asMat(this->image.size());	
+	}
+	return 0;
+}
 //Splits a segment into it's strongly connected components
 //Only relevent when multiple segments per colour
 int Segmenter::splitSegment(Segment segment, vector<Segment>& splitSegments) {
@@ -116,7 +122,7 @@ int Segmenter::splitSegment(Segment segment, vector<Segment>& splitSegments) {
 			if (int(binaryImage.at<uchar>(point)) == 255) {
 				int label = labels.at<int>(point);
 				//Ignore segments < 1% of picture
-				if (stats.at<int>(label, 4) > 0.01*(double(this->image.rows* this->image.cols))) {
+				if (stats.at<int>(label, 4) > 0.005*(double(this->image.rows) * double(this->image.cols))) {
 					if (segmentsMap.count(label) == 0) {
 						Segment newSegment = Segment(segment.getColour());
 						newSegment.setCenter(Point(int(centroids.at<double>(label, 0)), int(centroids.at<double>(label, 1))));
@@ -173,6 +179,8 @@ int Segmenter::segmentColours(int k) {
 			i++;
 		}
 	}
+
+
 	return 0;
 }
 
@@ -182,7 +190,7 @@ int Segmenter::findSegments() {
 	assert(!this->image.empty());
 	
 	//TODO: choose k, (algo or slider)
-	int k = 3;
+	int k = 4;
 
 	segmentColours(k);
 	assert(this->segments.size() == k);
@@ -220,7 +228,7 @@ int main(int argc, char** argv) {
 //Temp main for testing
 int main() {
 	Mat image, imageWithCenters, result;
-	string imagePath = "tree2_ca.jpg";
+	string imagePath = "tree1_ca.jpg";
 	image = imread(imagePath, 1);
 	imageWithCenters = imread(imagePath, 1);
 	imshow("original", image);
@@ -234,6 +242,9 @@ int main() {
 		drawMarker(imageWithCenters, segment.getCenter(), Scalar(0, 0, 255));
 		count++;
 	}
+	Mat kmeans = Mat::zeros(image.size(), CV_8UC3);;
+	segmenter.getKmeansImage(kmeans);
+	imshow("kmeans", kmeans);
 	imshow("centers", imageWithCenters);
 	waitKey(0);
 	return 0;
