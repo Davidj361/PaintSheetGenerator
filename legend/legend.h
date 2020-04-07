@@ -199,7 +199,7 @@ void getAverageColour(Mat in, vector<Mat> contours, vector<Scalar>& averageColou
 }
 
 
-/** @function Dilation */
+//Dilation functin to increase thicken the edges
 void Dilation(Mat in, Mat& dilation_dst, int size, int numTimes){
 	//create kernal for dilation
 	Mat element = getStructuringElement(MORPH_RECT, Size(size, size));
