@@ -35,6 +35,7 @@ private:
 	vector<Point> points;
 	Vec3f colour;
 	Point center;
+
 };
 
 vector<Point> Segment::getPoints() { return this->points; }
@@ -83,6 +84,7 @@ public:
 	Segmenter();
 	int findSegments();
 	vector<Segment> getSegments();
+	void rebuildImage(Mat&);
 private:
 	int segmentColours(int);
 	int splitSegment(Segment, vector<Segment>&);
@@ -100,6 +102,11 @@ Segmenter::Segmenter(Mat image) {
 }
 vector<Segment> Segmenter::getSegments() { return this->segments; }
 
+void Segmenter::rebuildImage(Mat& image) {
+	for (Segment segment : this->segments) {
+		image += segment.asMat(image.size());
+	}
+}
 //Splits a segment into it's strongly connected components
 //Only relevent when multiple segments per colour
 int Segmenter::splitSegment(Segment segment, vector<Segment>& splitSegments) {
@@ -119,8 +126,8 @@ int Segmenter::splitSegment(Segment segment, vector<Segment>& splitSegments) {
 			//Ignore the background
 			if (int(binaryImage.at<uchar>(point)) == 255) {
 				int label = labels.at<int>(point);
-				//Ignore segments < 1% of picture
-				if (stats.at<int>(label, 4) > 0.01*(double(this->image.rows* this->image.cols))) {
+				//Ignore segments < 0.001% of picture
+				if (stats.at<int>(label, 4) > 0.0001*(double(this->image.rows* this->image.cols))) {
 					if (segmentsMap.count(label) == 0) {
 						Segment newSegment = Segment(segment.getColour());
 						newSegment.setCenter(Point(int(centroids.at<double>(label, 0)), int(centroids.at<double>(label, 1))));
@@ -236,8 +243,8 @@ int main(int argc, char** argv) {
 //Temp main for testing
 int main(int argc, char** argv) {
 	Mat image, imageWithCenters, result;
-	getImage(image, argv[1]);
-	display(image);
+	image = imread("fish.jpg", 1);
+	imshow("orignal", image);
 	// imageWithCenters = Mat(image.size(), CV_8UC3, Scalar(0,0,0));
 	imageWithCenters = image.clone();
 
@@ -246,11 +253,15 @@ int main(int argc, char** argv) {
 	
 	int count = 0;
 	for (Segment segment : segments) {
-		display(segment.asMat(image.size()), to_string(count));
+		imshow(to_string(count),segment.asMat(image.size()));
 		drawMarker(imageWithCenters, segment.getCenter(), Scalar(0, 0, 255));
 		count++;
 	}
-	display(imageWithCenters, "Markers");
+
+	imshow("Markers", imageWithCenters);
+	Mat rebuild(image.size(), CV_8UC3);
+	segmenter.rebuildImage(rebuild);
+	imshow("Rebuild", rebuild);
 	waitKey(0);
 	return 0;
 }
