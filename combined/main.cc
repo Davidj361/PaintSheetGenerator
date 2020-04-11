@@ -78,10 +78,10 @@ int kmeans_then_edges(Mat img, Mat& result, int k) {
 
 
 int main(int argc, char** argv) {
-	/*if (argc != 3) {
+	if (argc != 3) {
 		cout << "usage: <prog> <image> <k>" << endl;
 		return -1;
-	}*/
+	}
 	Mat img;
 	getImage(img, argv[1]);
 	const size_t k = static_cast<size_t>(stoi(argv[2]));

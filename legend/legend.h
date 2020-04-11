@@ -9,10 +9,13 @@
 #include <limits>
 #include <opencv2/opencv.hpp>
 #include <opencv2/imgproc.hpp>
-#include "segmenter.h"
+#include "../kmeans/segmenter.h"
 
 using namespace std;
 using namespace cv;
+
+using uint = unsigned int;
+using uchar = unsigned char;
 
 
 class Legend {
@@ -37,9 +40,16 @@ public:
 			//number positioning
 			int baseline = 0;
 			Size textSize = getTextSize(to_string(number + 1), Fontface, 1.0, 2, &baseline);
+
+			// Get proper spot for placing the number
+			Point p = findTextSpot(segments[i], textSize);
+			// Segment too small for text?
+			// cout << p.x << " " << p.y << endl;
+			if (p.x == -1 || p.y == -1)
+				continue;
 			
 			// draw the box
-			Rect r = Rect(segments[i].getCenter().x, segments[i].getCenter().y, textSize.width, -textSize.height);
+			Rect r = Rect(p.x, p.y, textSize.width, -textSize.height);
 			rectangle(img, r.tl(), r.br(), Scalar(0, 0, 255));
 
 			Mat templ = Mat(textSize.height, textSize.width, CV_8UC3);
@@ -47,8 +57,8 @@ public:
 			Mat res;
 			matchTemplate(img, templ,res, TM_CCOEFF_NORMED);
 
-			putText(img, to_string(number + 1), segments[i].getCenter(), Fontface, 1.0, Scalar::all(255), 2);
-			putText(img, to_string(number + 1), segments[i].getCenter(), Fontface, 1.0, Scalar::all(0), 1);
+			putText(img, to_string(number + 1), p, Fontface, 1.0, Scalar::all(255), 2);
+			putText(img, to_string(number + 1), p, Fontface, 1.0, Scalar::all(0), 1);
 		}
 
 		//add padding to bottom and right side of img
@@ -101,6 +111,39 @@ private:
 			return true;
 		}
 		return false;
+	}
+
+	bool validTextArea(Point& p, Size& textSize, const Scalar& colour) const {
+		// Check area of textSize if all the same pixel colour
+		bool validArea = true;
+		for (int col = p.x - textSize.width; col < p.x + textSize.width; col++) {
+			for (int row = p.y - textSize.height; row < p.y + textSize.height; row++) {
+				// Boundary check
+				if (col < 0 || row < 0 || col > img.cols || row > img.rows ||
+					!isSameScalar(img.at<uchar>(col, row), colour) )
+					validArea = false;
+				break;
+			}
+		}
+		return validArea;
+	}
+
+	Point findTextSpot(const Segment s, const Size& textSize) const {
+		// Set as an invalid point
+		// That way if we any point in the segment is too small for text then don't draw it
+		Point ret(-1, -1);
+		uint width = textSize.width / 2;
+		uint height = textSize.height / 2;
+		Size size(width, height);
+		Scalar colour = s.getColour();
+
+		// Go through all pixels of the segment
+		for (auto p: s.getPoints())
+			if (validTextArea(p, size, colour)) {
+				ret.x = p.x - width;
+				ret.y = p.y - height;
+			}
+		return ret;
 	}
 };
 

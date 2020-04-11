@@ -26,6 +26,7 @@ public:
 	Segment(Vec3f);
 	int addPoint(Point);
 	vector<Point> getPoints();
+	vector<Point> getPoints() const;
 	Vec3f getColour() const;
 	Point getCenter() const;
 	void setCenter(Point);
@@ -38,6 +39,7 @@ private:
 };
 
 vector<Point> Segment::getPoints() { return this->points; }
+vector<Point> Segment::getPoints() const { return this->points; }
 Vec3f Segment::getColour() const { return this->colour;  }
 Point Segment::getCenter() const { return this->center;  }
 void Segment::setCenter(Point point) { this->center = point; }
