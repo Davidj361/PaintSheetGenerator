@@ -9,7 +9,7 @@
 #include <limits>
 #include <opencv2/opencv.hpp>
 #include <opencv2/imgproc.hpp>
-#include "../kmeans/segmenter.h"
+#include "segmenter.h"
 
 using namespace std;
 using namespace cv;
