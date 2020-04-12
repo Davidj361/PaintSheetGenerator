@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.12.0)
 project(test LANGUAGES CXX)
 find_package( OpenCV REQUIRED )
-add_executable( ${PROJECT_NAME} main.cc )
+add_executable( ${PROJECT_NAME} main.cc segmenter.cc legend.cc helper.cc )
 target_link_libraries( ${PROJECT_NAME} ${OpenCV_LIBS} )
 if(MSVC)
   target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX)

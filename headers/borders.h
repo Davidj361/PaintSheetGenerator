@@ -24,6 +24,7 @@ public:
 		for (auto s: segments) {
 			mat += getEdges(img, s);
 		}
+		cvtColor(mat, mat, COLOR_GRAY2RGB);
 	}
 
 private:
