@@ -60,7 +60,7 @@ int main(int argc, char** argv) {
 	Mat kmeans = Mat::zeros(img.size(), CV_8UC3);
 	segmenter.getKmeansImage(kmeans);
 
-	Mat dilation_dst, regionsWithNumbers, result_edge, legendImg;
+	Mat dilation_dst, regionsWithNumbers, result_edge, legendImg, legendImg2;
 
 	Borders borders(img, segments);
 	result_edge = borders.mat;
@@ -69,9 +69,11 @@ int main(int argc, char** argv) {
 	Dilation(result_edge, dilation_dst, 3, 2);
 	Mat quantized =	generateQuantized(img);
 	Legend legend(dilation_dst, quantized, segments);
-	// Legend legend(quantized, quantized, segments);
 	legend.createLegend(legendImg);
 	display(legendImg);
+	Legend legend2(quantized, quantized, segments);
+	legend2.createLegend(legendImg2);
+	display(legendImg2);
 
 	Mat imageWithCenters = legendImg.clone();
 	for (Segment segment : segments) {

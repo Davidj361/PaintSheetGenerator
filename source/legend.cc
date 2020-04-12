@@ -50,13 +50,17 @@ void Legend::createLegend(Mat& dst) {
 		putText(quantized, to_string(number + 1), p, Fontface, 1.0, Scalar::all(0), 1);
 	}
 
-	//add padding to bottom and right side of img
-	copyMakeBorder(img, dst, 0, img.rows, 0, img.cols, BORDER_CONSTANT, Scalar::all(255));
+	//add black border around img
+	copyMakeBorder(img, dst, 1, 1, 1, 1, BORDER_CONSTANT, Scalar::all(0));
+
+	//add inital padding to bottom and right side of img
+	copyMakeBorder(dst, dst, 10, 10, 10, 42, BORDER_CONSTANT, Scalar::all(255));
+
 
 	//point pt1 is rectangle top left corner
 	//point pt2 is rectangle bottom right corner
 	//with 20 pixel spacing between subsuqent rectangles vertically
-	Point pt1 = Point(img.cols + 10, 10);
+	Point pt1 = Point(img.cols + 20, 10);
 	Point pt2 = Point(pt1.x + 10, pt1.y + 10);
 	Point text;
 
