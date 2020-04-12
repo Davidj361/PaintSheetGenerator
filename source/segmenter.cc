@@ -8,6 +8,8 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/highgui.hpp>
+#include "../headers/segmenter.h"
+
 
 using namespace std;
 using namespace cv;
@@ -15,31 +17,10 @@ using namespace cv;
 
 const string TITLE = "TEST";
 
-
-/*
-Class: Segment
-
-*/
-class Segment {
-public:
-	Segment();
-	Segment(Vec3f);
-	int addPoint(Point);
-	vector<Point> getPoints();
-	Vec3f getColour();
-	Point getCenter();
-	void setCenter(Point);
-	Mat asBinaryMat(Size);
-	Mat asMat(Size);
-private:
-	vector<Point> points;
-	Vec3f colour;
-	Point center;
-};
-
 vector<Point> Segment::getPoints() { return this->points; }
-Vec3f Segment::getColour() { return this->colour;  }
-Point Segment::getCenter() { return this->center;  }
+vector<Point> Segment::getPoints() const { return this->points; }
+Vec3f Segment::getColour() const { return this->colour;  }
+Point Segment::getCenter() const { return this->center;  }
 void Segment::setCenter(Point point) { this->center = point; }
 
 Segment::Segment(){}
@@ -73,30 +54,11 @@ Mat Segment::asMat(Size size) {
 	return image;
 }
 
-/*
-Class: Segmenter
-
-*/
-class Segmenter {
-public:
-	Segmenter(Mat);
-	Segmenter();
-	int findSegments();
-	vector<Segment> getSegments();
-private:
-	int segmentColours(int);
-	int splitSegment(Segment, vector<Segment>&);
-	vector<Segment> segments;
-	vector<Vec3f> colours;
-	Mat image;
-
-
-};
 
 Segmenter::Segmenter() {}
-Segmenter::Segmenter(Mat image) {
+Segmenter::Segmenter(Mat image, size_t k) {
 	this->image = image;
-	this->findSegments();
+	this->findSegments(k);
 }
 vector<Segment> Segmenter::getSegments() { return this->segments; }
 
@@ -120,7 +82,7 @@ int Segmenter::splitSegment(Segment segment, vector<Segment>& splitSegments) {
 			if (int(binaryImage.at<uchar>(point)) == 255) {
 				int label = labels.at<int>(point);
 				//Ignore segments < 1% of picture
-				if (stats.at<int>(label, 4) > 0.01*(double(this->image.rows* this->image.cols))) {
+				if (stats.at<int>(label, 4) > 0.0001*(double(this->image.rows* this->image.cols))) {
 					if (segmentsMap.count(label) == 0) {
 						Segment newSegment = Segment(segment.getColour());
 						newSegment.setCenter(Point(int(centroids.at<double>(label, 0)), int(centroids.at<double>(label, 1))));
@@ -143,7 +105,7 @@ int Segmenter::splitSegment(Segment segment, vector<Segment>& splitSegments) {
 /*
 Uses k-means to seperate image into k colours
 */
-int Segmenter::segmentColours(int k) {
+int Segmenter::segmentColours(size_t k) {
 	Mat img_data, labels, centers;
 	//this->segments = vector<Segment>(k);
 
@@ -182,12 +144,9 @@ int Segmenter::segmentColours(int k) {
 
 
 
-int Segmenter::findSegments() {
+int Segmenter::findSegments(size_t k) {
 	assert(!this->image.empty());
 	
-	//TODO: choose k, (algo or slider)
-	size_t k = 3;
-
 	segmentColours(k);
 	assert(this->segments.size() == k);
 
@@ -203,54 +162,12 @@ int Segmenter::findSegments() {
 	return 0;
 }
 
-
-void getImage(Mat& in, const char* s) {
-	in = imread(s, 1);
-	if (!in.data) {
-		throw runtime_error("No input file");
+int Segmenter::getKmeansImage(Mat& result) {
+	for (Segment segment : this->segments) {
+		assert(result.size() == this->image.size());
+		result += segment.asMat(this->image.size());
 	}
-}
-
-
-void display(const Mat& image, const string title=TITLE) {
-	imshow(title, image);
-	// If Escape is hit, close
-	while (true) {
-		int k = waitKey(10);
-		if (k == 27) break;
-	}
-}
-
-
-/*
-int main(int argc, char** argv) {
-	Mat img, result_edge, result_kmeans;
-	if (argc != 2) {
-		cout << "usage: <prog> <image>" << endl;
-		return -1;
-	}
-	getImage(img, argv[1]);
-	imshow("input", img);
-*/
-
-//Temp main for testing
-int main(int argc, char** argv) {
-	Mat image, imageWithCenters, result;
-	getImage(image, argv[1]);
-	display(image);
-	// imageWithCenters = Mat(image.size(), CV_8UC3, Scalar(0,0,0));
-	imageWithCenters = image.clone();
-
-	Segmenter segmenter = Segmenter(image);
-	vector<Segment> segments = segmenter.getSegments();
-	
-	int count = 0;
-	for (Segment segment : segments) {
-		display(segment.asMat(image.size()), to_string(count));
-		drawMarker(imageWithCenters, segment.getCenter(), Scalar(0, 0, 255));
-		count++;
-	}
-	display(imageWithCenters, "Markers");
-	waitKey(0);
 	return 0;
 }
+
+
