@@ -33,17 +33,12 @@ void Legend::createLegend(Mat& dst, bool drawBoxes) {
 		// cout << p.x << " " << p.y << endl;
 		if (p.x == -1 || p.y == -1)
 			continue;
-			
+
 		// draw the box
 		if (drawBoxes) {
 			Rect r = Rect(p.x, p.y, textSize.width, -textSize.height);
 			rectangle(img, r.tl(), r.br(), Scalar(0, 0, 255));
 		}
-
-		Mat templ = Mat(textSize.height, textSize.width, CV_8UC3);
-		templ = colours[i].getColour();
-		Mat res;
-		matchTemplate(img, templ,res, TM_CCOEFF_NORMED);
 
 		putText(img, to_string(number + 1), p, Fontface, 1.0, Scalar::all(255), 2);
 		putText(img, to_string(number + 1), p, Fontface, 1.0, Scalar::all(0), 1);
@@ -69,7 +64,10 @@ void Legend::createLegend(Mat& dst, bool drawBoxes) {
 	// Create the legend
 	for (size_t i = 0; i < colours.size(); i++) {
 
+		//added legend entries to right once they reach the height of the orginal img
+		//and also extend the img by the needed amount
 		if (pt1.y > img.rows) {
+			copyMakeBorder(dst, dst, 0, 0, 0, 30, BORDER_CONSTANT, Scalar::all(255));
 			pt1 = Point(text.x + 20, 10);
 			pt2 = Point(pt1.x + 10, pt1.y + 10);
 		}
@@ -112,7 +110,7 @@ bool Legend::validTextArea(const Point& p, const Size& textSize, const Scalar& c
 			// Boundary check
 			Scalar c(quantized.at<Vec3b>(row, col));
 			if (col < 0 || row < 0 || col > quantized.cols || row > quantized.rows ||
-				!isSameScalar(c, colour) ) {
+				!isSameScalar(c, colour)) {
 				return false;
 			}
 		}
@@ -127,7 +125,7 @@ Point Legend::findTextSpot(const Segment s, const Size& textSize) const {
 	Scalar colour = Vec3b(s.getColour());
 
 	// Go through all pixels of the segment
-	for (auto p: s.getPoints()) {
+	for (auto p : s.getPoints()) {
 		if (validTextArea(p, textSize, colour)) {
 			ret.x = p.x;
 			ret.y = p.y + textSize.height;
