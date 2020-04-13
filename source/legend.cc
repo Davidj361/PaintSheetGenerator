@@ -1,5 +1,5 @@
-#include "legend.h"
-#include "helper.h"
+#include "../headers/legend.h"
+#include "../headers/helper.h"
 
 using namespace std;
 using namespace cv;
