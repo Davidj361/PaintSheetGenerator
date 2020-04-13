@@ -17,7 +17,7 @@ using namespace cv;
 class Legend {
 public:
 	Legend(Mat& edges, Mat& quantized, const vector<Segment>& segments);
-	void createLegend(Mat& dst);
+	void createLegend(Mat& dst, bool drawBoxes=false);
 
 private:
 	Mat img, quantized;

@@ -17,18 +17,18 @@ using namespace cv;
 
 class Borders {
 public:
-	Mat mat;
-	Borders(Mat& img, vector<Segment>& segments) {
+	static Mat create(Mat& img, vector<Segment>& segments) {
 		// Black and white image of the same dimensions as img
-		mat = Mat(img.size(), CV_8U, Scalar(0));
+		Mat mat = Mat(img.size(), CV_8U, Scalar(0));
 		for (auto s: segments) {
 			mat += getEdges(img, s);
 		}
 		cvtColor(mat, mat, COLOR_GRAY2RGB);
+		return mat;
 	}
 
 private:
-	Mat getEdges(const Mat& img, Segment& s) {
+	static Mat getEdges(const Mat& img, Segment& s) {
 		int lower_t, upper_t, kernal_width;
 		lower_t = 10;
 		upper_t = 200;

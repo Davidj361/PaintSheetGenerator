@@ -22,21 +22,6 @@ int edge_only(Mat img, Mat& result) {
 	return 0;
 }
 
-//Dilation functin to increase thicken the edges
-void Dilation(Mat in, Mat& dilation_dst, int size, int numTimes) {
-	//create kernal for dilation
-	Mat element = getStructuringElement(MORPH_RECT, Size(size, size));
-
-	/// Apply the dilation operation "n" times 
-	for (int i = 0; i < numTimes; i++) {
-		if (i == 0) {
-			dilate(in, dilation_dst, element);
-		}
-		else {
-			dilate(dilation_dst, dilation_dst, element);
-		}
-	}
-}
 
 void getImage(Mat& in, const char* s) {
 	in = imread(s, 1);

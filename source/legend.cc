@@ -16,7 +16,7 @@ Legend::Legend(Mat& edges, Mat& quantized, const vector<Segment>& segments) : se
 	}
 }
 
-void Legend::createLegend(Mat& dst) {
+void Legend::createLegend(Mat& dst, bool drawBoxes) {
 	// Put numbers on the actual image
 	for (size_t i = 0; i < segments.size(); i++) {
 		int number = findColour(segments[i].getColour());
@@ -35,8 +35,10 @@ void Legend::createLegend(Mat& dst) {
 			continue;
 			
 		// draw the box
-		Rect r = Rect(p.x, p.y, textSize.width, -textSize.height);
-		rectangle(img, r.tl(), r.br(), Scalar(0, 0, 255));
+		if (drawBoxes) {
+			Rect r = Rect(p.x, p.y, textSize.width, -textSize.height);
+			rectangle(img, r.tl(), r.br(), Scalar(0, 0, 255));
+		}
 
 		Mat templ = Mat(textSize.height, textSize.width, CV_8UC3);
 		templ = colours[i].getColour();
