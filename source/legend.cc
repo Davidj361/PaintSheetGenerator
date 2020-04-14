@@ -23,14 +23,20 @@ void Legend::createLegend(Mat& dst, bool drawBoxes) {
 		if (number == -1)
 			throw runtime_error("createLegend broke");
 
-		//number positioning
+		//number positioning and sizing
 		int baseline = 0;
-		Size textSize = getTextSize(to_string(number + 1), Fontface, 1.0, 2, &baseline);
-
-		// Get proper spot for placing the number
-		Point p = findTextSpot(segments[i], textSize);
+		Size textSize;
+		double fontScale;
+		Point p;
+		for (fontScale = 1.0; fontScale > 0.25; fontScale = fontScale / 2.0) {
+			textSize = getTextSize(to_string(number + 1), Fontface, fontScale, 2, &baseline);
+			// Get proper spot for placing the number
+			p = findTextSpot(segments[i], textSize);
+			// Fits!
+			if (p.x != -1 && p.y != -1)
+				break;
+		}
 		// Segment too small for text?
-		// cout << p.x << " " << p.y << endl;
 		if (p.x == -1 || p.y == -1)
 			continue;
 
@@ -40,11 +46,11 @@ void Legend::createLegend(Mat& dst, bool drawBoxes) {
 			rectangle(img, r.tl(), r.br(), Scalar(0, 0, 255));
 		}
 
-		putText(img, to_string(number + 1), p, Fontface, 1.0, Scalar::all(255), 2);
-		putText(img, to_string(number + 1), p, Fontface, 1.0, Scalar::all(0), 1);
+		putText(img, to_string(number + 1), p, Fontface, fontScale, Scalar::all(255), 2);
+		putText(img, to_string(number + 1), p, Fontface, fontScale, Scalar::all(0), 1);
 		// also need to update quantized so no overlapping numbers
-		putText(quantized, to_string(number + 1), p, Fontface, 1.0, Scalar::all(255), 2);
-		putText(quantized, to_string(number + 1), p, Fontface, 1.0, Scalar::all(0), 1);
+		putText(quantized, to_string(number + 1), p, Fontface, fontScale, Scalar::all(255), 2);
+		putText(quantized, to_string(number + 1), p, Fontface, fontScale, Scalar::all(0), 1);
 	}
 
 	//add black border around img
