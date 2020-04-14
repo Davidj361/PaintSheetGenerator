@@ -21,7 +21,9 @@ using namespace cv;
 
 class ColourBook {
 public:
-	ColourBook(Mat& edges, int k, bool drawBoxes=false);
+	friend class Window;
+	
+	ColourBook(Mat& input, int k, bool drawBoxes=false);
 
 	void showOrig();
 	void showQuantized();
@@ -31,8 +33,8 @@ private:
 	vector<Segment> segments;
 	string title;
 	Mat orig, quantized, product, kmeans;
-	const int k;
-	const bool drawBoxes;
+	int k;
+	bool drawBoxes;
 
 	void quantize();
 	void dilation(int size, int numTimes);

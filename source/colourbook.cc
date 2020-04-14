@@ -5,7 +5,7 @@ using namespace std;
 using namespace cv;
 
 
-ColourBook::ColourBook(Mat& in, int k, bool drawBoxes) : orig(in), k(k), drawBoxes(drawBoxes) {
+ColourBook::ColourBook(Mat& input, int k, bool drawBoxes) : orig(input), k(k), drawBoxes(drawBoxes) {
 	title = "Colouring Book";
 
 	this->segmenter = Segmenter(orig, k);
