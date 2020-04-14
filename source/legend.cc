@@ -28,7 +28,7 @@ void Legend::createLegend(Mat& dst, bool drawBoxes) {
 		Size textSize;
 		double fontScale;
 		Point p;
-		for (fontScale = 1.0; fontScale > 0.25; fontScale = fontScale / 2.0) {
+		for (fontScale = 1.0; fontScale > 0.15; fontScale = fontScale / 2.0) {
 			textSize = getTextSize(to_string(number + 1), Fontface, fontScale, 2, &baseline);
 			// Get proper spot for placing the number
 			p = findTextSpot(segments[i], textSize);
