@@ -59,6 +59,11 @@ void Window::showProduct() {
 void Window::doRun() {
 	this->draw(1);
 }
+
+void Window::doSave() {
+	imwrite("colouring_page.jpg", cb.product);
+}
+
 void Window::run() {
 	namedWindow(title, WINDOW_AUTOSIZE);
 	// Need a mouseCallBack so trackbar doesn't lag out
@@ -80,10 +85,13 @@ void Window::run() {
 				showProduct();    
 				break;
 			case 32:          //space
-				cout << "running..." << endl;
+				cout << "Running..." << endl;
 				doRun();
-				cout << "finished" << endl;
+				cout << "Finished" << endl;
 				break;
+			case 115:         //s
+				doSave();	
+				cout << "Colouring page saved" << endl;
 		}
 		 
 	}

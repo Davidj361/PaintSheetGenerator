@@ -37,6 +37,7 @@ private:
 	void showQuantized();
 	void showProduct();
 	void doRun();
+	void doSave();
 	void draw(bool recalculate = false);
 };
 
