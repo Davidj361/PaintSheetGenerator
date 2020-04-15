@@ -114,9 +114,11 @@ bool Legend::validTextArea(const Point& p, const Size& textSize, const Scalar& c
 	for (int row = p.y; row < yLimit; row++) {
 		for (int col = p.x; col < xLimit; col++) {
 			// Boundary check
-			Scalar c(quantized.at<Vec3b>(row, col));
-			if (col < 0 || row < 0 || col > quantized.cols || row > quantized.rows ||
-				!isSameScalar(c, colour)) {
+			if (col < 0 || row < 0 || col >= this->quantized.cols || row >= this->quantized.rows) {
+				return false;
+			}
+			Scalar c(this->quantized.at<Vec3b>(row, col));
+			if (!isSameScalar(c, colour)) {
 				return false;
 			}
 		}

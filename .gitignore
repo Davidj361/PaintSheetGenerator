@@ -12,8 +12,8 @@ assignment2_Part1
 test
 build
 *screenshot*
-/.vs/COMP4102Poject/v16
-/.vs/CMake Overview
-/.vs/launch.vs.json
-/.vs/ProjectSettings.json
-/.vs/slnx.sqlite
+.vs
+*.sln
+*.vcxproj*
+x64
+x32
