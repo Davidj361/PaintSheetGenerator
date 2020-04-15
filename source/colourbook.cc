@@ -17,7 +17,11 @@ ColourBook::ColourBook(Mat& input, int k, bool drawBoxes) : orig(input), k(k), d
 	// Create black and white image of edges, and thicken the lines
 	quantized = Borders::create(orig, segments);
 	product = quantized.clone();
+
 	dilation(3, 2);
+	//invert product so borders are black and bg is white
+	product = ~product;
+
 	// Create a version with colours already filled in
 	quantize();
 
