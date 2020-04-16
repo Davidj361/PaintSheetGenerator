@@ -2,6 +2,16 @@
 
 Generates a page for a colouring book from an input image. The page is black and white and is numbered to an associating colour legend.
 
+#### Controls
+
+- `e` is calculate with no dilated edges
+- `d` is calculate with dilated edges
+- `s` is save the result/product image in the same directory as the executable
+- `1` shows the result/product
+- `2` shows the quantized image with edges
+- `3` shows the quantized image without edges
+- `4` shows the original image
+
 ## CMake
 
 CMake is a multi-platform tool for being able to use whatever toolchain on whatever operating system to build a project.
