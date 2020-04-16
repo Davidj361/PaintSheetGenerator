@@ -27,7 +27,7 @@ private:
 	string title, trackbarName;
 	Mat img;
 	int k, kmax;
-	enum windowType { ORIG, QUANT, PROD } type;
+	enum windowType { ORIG, QUANT, QUANT_NOE, PROD } type;
 	ColourBook cb;
 
 	static void onTrackbar(int, void*);
@@ -35,6 +35,7 @@ private:
 	static void onMouse(int event, int x, int y, int flags, void* userdata);
 	void showOriginal();
 	void showQuantized();
+	void showQuantizedNoEdges();
 	void showProduct();
 	void doRun();
 	void doSave();

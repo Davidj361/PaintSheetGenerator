@@ -35,6 +35,9 @@ void Window::draw(bool recalculate) {
 	case QUANT:
 		imshow(title, cb.quantized);
 		break;
+	case QUANT_NOE:
+		imshow(title, cb.quantizedNoEdges);
+		break;
 	case PROD:
 		imshow(title, cb.product);
 		break;
@@ -48,6 +51,11 @@ void Window::showOriginal() {
 
 void Window::showQuantized() {
 	this->type = QUANT;
+	this->draw();
+}
+
+void Window::showQuantizedNoEdges() {
+	this->type = QUANT_NOE;
 	this->draw();
 }
 
@@ -75,8 +83,11 @@ void Window::run() {
 		switch (k) {
 			case 27:          //esc
 				return;
-			case 51:          //3
+			case 52:          //4
 				showOriginal();   
+				break;
+			case 51:		  //3
+				showQuantizedNoEdges();  
 				break;
 			case 50:		  //2
 				showQuantized();  

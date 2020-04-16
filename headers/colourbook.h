@@ -32,11 +32,11 @@ private:
 	Segmenter segmenter;
 	vector<Segment> segments;
 	string title;
-	Mat orig, quantized, product, kmeans;
+	Mat orig, quantized, quantizedNoEdges, product, kmeans;
 	int k;
 	bool drawBoxes;
 
-	void quantize();
+	void quantize(Mat& input);
 	void dilation(int size, int numTimes);
 };
 

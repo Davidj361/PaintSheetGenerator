@@ -20,26 +20,30 @@ ColourBook::ColourBook(Mat& input, int k, bool drawBoxes) : orig(input), k(k), d
 
 	dilation(3, 2);
 	//invert product so borders are black and bg is white
-	product = ~product;
 
 	// Create a version with colours already filled in
-	quantize();
+	quantizedNoEdges = Mat::zeros(orig.size(), CV_8UC3);
+	quantize(quantized);
+	quantize(quantizedNoEdges);
 
 	Legend legend(product, quantized, segments);
 	legend.createLegend(product, drawBoxes);
 
 	legend = Legend(quantized, quantized, segments);
 	legend.createLegend(quantized, drawBoxes);
+
+	legend = Legend(quantizedNoEdges, quantizedNoEdges, segments);
+	legend.createLegend(quantizedNoEdges, drawBoxes);
 }
 
-void ColourBook::quantize() {
+void ColourBook::quantize(Mat& input) {
 	Mat overlay_dil(orig.size(), CV_8UC3);
-	subtract(kmeans, ~quantized, overlay_dil);
+	subtract(kmeans, ~input, overlay_dil);
 
 	Mat overlay(orig.size(), CV_8UC3);
-	subtract(kmeans, quantized, overlay);
+	subtract(kmeans, input, overlay);
 
-	quantized = overlay;
+	input = overlay;
 }
 
 
@@ -66,4 +70,5 @@ void ColourBook::dilation(int size, int numTimes) {
 		dilate(product, product, element);
 	}
 	quantized = product.clone();
+	product = ~product;
 }
