@@ -5,7 +5,7 @@ using namespace std;
 using namespace cv;
 
 
-ColourBook::ColourBook(Mat& input, int k, bool drawBoxes) : orig(input), k(k), drawBoxes(drawBoxes) {
+ColourBook::ColourBook(Mat& input, int k, bool dial8, bool drawBoxes) : orig(input), k(k), drawBoxes(drawBoxes), dial8(dial8) {
 	title = "Colouring Book";
 
 	this->segmenter = Segmenter(orig, k);
@@ -18,13 +18,15 @@ ColourBook::ColourBook(Mat& input, int k, bool drawBoxes) : orig(input), k(k), d
 	quantized = Borders::create(orig, segments);
 	product = quantized.clone();
 
-	dilation(3, 2);
+	if (dial8)
+		dilation(3, 2);
 	//invert product so borders are black and bg is white
 
 	// Create a version with colours already filled in
 	quantizedNoEdges = Mat::zeros(orig.size(), CV_8UC3);
 	quantize(quantized);
 	quantize(quantizedNoEdges);
+	product = ~product;
 
 	Legend legend(product, quantized, segments);
 	legend.createLegend(product, drawBoxes);
@@ -70,5 +72,4 @@ void ColourBook::dilation(int size, int numTimes) {
 		dilate(product, product, element);
 	}
 	quantized = product.clone();
-	product = ~product;
 }

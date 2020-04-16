@@ -23,7 +23,7 @@ class ColourBook {
 public:
 	friend class Window;
 	
-	ColourBook(Mat& input, int k, bool drawBoxes=false);
+	ColourBook(Mat& input, int k, bool dial8 = true, bool drawBoxes=false);
 
 	void showOrig();
 	void showQuantized();
@@ -34,7 +34,7 @@ private:
 	string title;
 	Mat orig, quantized, quantizedNoEdges, product, kmeans;
 	int k;
-	bool drawBoxes;
+	bool drawBoxes, dial8;
 
 	void quantize(Mat& input);
 	void dilation(int size, int numTimes);

@@ -25,9 +25,9 @@ void Window::realTrack(int i) {
 }
 
 
-void Window::draw(bool recalculate) {
+void Window::draw(bool recalculate, bool dial8) {
 	if (recalculate)
-		cb = ColourBook(img, k);
+		cb = ColourBook(img, k, dial8);
 	switch (type) {
 	case ORIG:
 		imshow(title, cb.orig);
@@ -64,12 +64,15 @@ void Window::showProduct() {
 	this->draw();
 }
 
-void Window::doRun() {
-	this->draw(1);
+void Window::doRun(bool dial8) {
+	cout << "Calculating..." << endl;
+	this->draw(true, dial8);
+	cout << "Finished calculating" << endl;
 }
 
 void Window::doSave() {
 	imwrite("colouring_page.jpg", cb.product);
+	cout << "Colouring page saved" << endl;
 }
 
 void Window::run() {
@@ -81,28 +84,29 @@ void Window::run() {
 	while (true) {
 		int k = waitKey(10);
 		switch (k) {
-			case 27:          //esc
+			case 27:          // Escape
 				return;
-			case 52:          //4
+			case 52:          // 4
 				showOriginal();   
 				break;
-			case 51:		  //3
+			case 51:		  // 3
 				showQuantizedNoEdges();  
 				break;
-			case 50:		  //2
+			case 50:		  // 2
 				showQuantized();  
 				break;
-			case 49:          //1
+			case 49:          // 1
 				showProduct();    
 				break;
-			case 32:          //space
-				cout << "Running..." << endl;
-				doRun();
-				cout << "Finished" << endl;
+			case 101:          // e
+				doRun(false);
 				break;
-			case 115:         //s
+			case 100:          // d
+				doRun(true);
+				break;
+			case 115:         // s
 				doSave();	
-				cout << "Colouring page saved" << endl;
+				break;
 		}
 		 
 	}

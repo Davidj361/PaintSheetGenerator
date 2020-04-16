@@ -37,9 +37,9 @@ private:
 	void showQuantized();
 	void showQuantizedNoEdges();
 	void showProduct();
-	void doRun();
+	void doRun(bool dial8 = true);
 	void doSave();
-	void draw(bool recalculate = false);
+	void draw(bool recalculate = false, bool dial8 = true );
 };
 
 #endif

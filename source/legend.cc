@@ -47,10 +47,10 @@ void Legend::createLegend(Mat& dst, bool drawBoxes) {
 		}
 
 		putText(img, to_string(number + 1), p, Fontface, fontScale, Scalar::all(255), 2);
-		putText(img, to_string(number + 1), p, Fontface, fontScale, Scalar::all(0), 1);
+		putText(img, to_string(number + 1), p, Fontface, fontScale, Scalar(0, 0, 255), 1);
 		// also need to update quantized so no overlapping numbers
 		putText(quantized, to_string(number + 1), p, Fontface, fontScale, Scalar::all(255), 2);
-		putText(quantized, to_string(number + 1), p, Fontface, fontScale, Scalar::all(0), 1);
+		putText(quantized, to_string(number + 1), p, Fontface, fontScale, Scalar(0, 0, 255), 1);
 	}
 
 	//add black border around img
