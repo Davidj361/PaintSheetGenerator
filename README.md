@@ -21,7 +21,12 @@ The executable should be built in 'build' in the main directory.
 
 ## Windows Compilation
 
-**NOTE**: You must have the .dll files of opencv in your `PATH` environment variable, e.g. `C:\opencv\build\x64\vc15\bin`
+### Important Steps
+- It is recommended to utilize System over User for environment variables
+- `PATH` environment variable must have the the location of the OpenCV .dll files, e.g. `C:\opencv\build\x64\vc15\bin`
+- `OPENCV_DIR` environment variable have the main directory of OpenCV which contains the `x64` , e.g. `C:\opencv\build`
+- Applications must be restarted for reading new/updated environment variables
+- The project directory should be clean of any Visual Studio project/solution files, etc
 
 #### Visual Studio Open Folder Method
 - Open the main directory of the git repository in Visual Studio by > Open a local folder
