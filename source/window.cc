@@ -2,7 +2,7 @@
 #include "../headers/window.h"
 #include "../headers/helper.h"
 
-Window::Window(Mat& input) : k(3), kmax(20), img(input), cb(img, k) {
+Window::Window(Mat& input) : k(3), kmax(10), img(input), cb(img, k) {
 	type = PROD;
 	title = "Colouring Book";
 	trackbarName = "k-value";
@@ -12,42 +12,20 @@ void Window::onMouse(int event, int x, int y, int flags, void* userdata) {
 }
 
 void Window::onTrackbar(int i, void* ptr) {
-	Window* that = (Window*) ptr;
+	Window* that = (Window*)ptr;
 	that->realTrack(i);
 }
 
 void Window::realTrack(int i) {
-	if (i < 3) {
-		k = 3;
+	if (i < 2) {
+		k = 2;
 		setTrackbarPos(trackbarName, title, k);
 		return;
 	}
 }
 
-void Window::onButtonOrig(int i, void* ptr) {
-	Window* that = (Window*) ptr;
-	that->type = ORIG;
-	that->draw(i);
-}
 
-void Window::onButtonQuant(int i, void* ptr) {
-	Window* that = (Window*) ptr;
-	that->type = QUANT;
-	that->draw(i);
-}
-
-void Window::onButtonProd(int i, void* ptr) {
-	Window* that = (Window*) ptr;
-	that->type = PROD;
-	that->draw(i);
-}
-
-void Window::onButtonRun(int i, void* ptr) {
-	Window* that = (Window*) ptr;
-	that->draw(i, true);
-}
-
-void Window::draw(int i, bool recalculate) {
+void Window::draw(bool recalculate) {
 	if (recalculate)
 		cb = ColourBook(img, k);
 	switch (type) {
@@ -63,18 +41,58 @@ void Window::draw(int i, bool recalculate) {
 	}
 }
 
+void Window::showOriginal() {
+	this->type = ORIG;
+	this->draw();
+}
+
+void Window::showQuantized() {
+	this->type = QUANT;
+	this->draw();
+}
+
+void Window::showProduct() {
+	this->type = PROD;
+	this->draw();
+}
+
+void Window::doRun() {
+	this->draw(1);
+}
+
+void Window::doSave() {
+	imwrite("colouring_page.jpg", cb.product);
+}
+
 void Window::run() {
 	namedWindow(title, WINDOW_AUTOSIZE);
 	// Need a mouseCallBack so trackbar doesn't lag out
 	setMouseCallback(title, onMouse, NULL);
-	createButton("Show Original", onButtonOrig, this, QT_PUSH_BUTTON, 0);
-	createButton("Show Quantized", onButtonQuant, this, QT_PUSH_BUTTON, 0);
-	createButton("Show Product", onButtonProd, this, QT_PUSH_BUTTON, 0);
-	createButton("Run", onButtonRun, this, QT_PUSH_BUTTON|QT_NEW_BUTTONBAR, 0);
 	createTrackbar(trackbarName, title, &k, kmax, onTrackbar, this);
 	draw(0);
 	while (true) {
 		int k = waitKey(10);
-		if (k==27) break;
+		switch (k) {
+			case 27:          //esc
+				return;
+			case 51:          //3
+				showOriginal();   
+				break;
+			case 50:		  //2
+				showQuantized();  
+				break;
+			case 49:          //1
+				showProduct();    
+				break;
+			case 32:          //space
+				cout << "Running..." << endl;
+				doRun();
+				cout << "Finished" << endl;
+				break;
+			case 115:         //s
+				doSave();	
+				cout << "Colouring page saved" << endl;
+		}
+		 
 	}
 }

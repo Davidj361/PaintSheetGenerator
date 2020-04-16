@@ -33,11 +33,12 @@ private:
 	static void onTrackbar(int, void*);
 	void realTrack(int i);
 	static void onMouse(int event, int x, int y, int flags, void* userdata);
-	static void onButtonOrig(int i, void* ptr);
-	static void onButtonQuant(int i, void* ptr);
-	static void onButtonProd(int i, void* ptr);
-	static void onButtonRun(int i, void* ptr);
-	void draw(int i, bool recalculate=false);
+	void showOriginal();
+	void showQuantized();
+	void showProduct();
+	void doRun();
+	void doSave();
+	void draw(bool recalculate = false);
 };
 
 #endif
