@@ -10,10 +10,14 @@ assignment2_Part1
 \#*#
 .#*
 test
+ColouringBook
+ColouringBook.exe
 build
+out
 *screenshot*
 .vs
 *.sln
 *.vcxproj*
 x64
 x32
+CMakeSettings.json

@@ -1,10 +1,20 @@
 cmake_minimum_required(VERSION 3.12.0)
-project(test LANGUAGES CXX)
+project(ColouringBook LANGUAGES CXX)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../build")
+
+# Use this if you're too lazy to set an OPENCV_DIR environment variable in Windows
+#if(MSVC)
+#  set(OpenCV_DIR C:/opencv/build)
+#endif()
+
 find_package( OpenCV REQUIRED )
+include_directories(${OpenCV_INCLUDE_DIRS})
 add_executable( ${PROJECT_NAME} main.cc segmenter.cc legend.cc helper.cc colourbook.cc window.cc )
 target_link_libraries( ${PROJECT_NAME} ${OpenCV_LIBS} )
 if(MSVC)
-  target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX)
+  #target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX)
 else()
-  target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -pedantic-errors -std=c++17 -g)
+  target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -pedantic-errors -g)
 endif()
