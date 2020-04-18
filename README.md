@@ -20,7 +20,7 @@ Run the program in command line and provide the pathname to an image as an argum
 CMake is a multi-platform tool for being able to use whatever toolchain on whatever operating system to build a project.
 
 Below are instructions on how to compile the project with CMake.
-The executable should be built in 'build' in the main directory.
+**The executable should be built in `build` in the main directory.**
 
 ## Windows Compilation
 
@@ -51,6 +51,6 @@ The executable should be built in 'build' in the main directory.
 
 ## Linux Compilation
 In Linux to use CMake:
-- while in the main directory: mkdir build && cd build
-- cmake ../source
-- make
+- while in the main directory: `mkdir build && cd build`
+- `cmake ../source`
+- `make`
