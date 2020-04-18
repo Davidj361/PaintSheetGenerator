@@ -1,6 +1,6 @@
-# COMP4102Group
+# Paint Sheet Generator
 
-Generates a page for a colouring book from an input image. The page is black and white and is numbered to an associating colour legend.
+Generates a paint sheet from an input image. The page is black and white and is numbered to an associating colour legend.
 
 #### Controls
 
@@ -35,12 +35,12 @@ The executable should be built in 'build' in the main directory.
 
 #### CMake GUI Method
 - Open CMake-GUI
-- Set the source code to `source`, e.g. `C:/Users/DJ/Documents/GitHub/ColouringBook/source`
-- Set the build directory to a clean directory, e.g. `C:/Users/DJ/Documents/GitHub/ColouringBook/source/build`
+- Set the source code to `source`, e.g. `C:/Users/DJ/Documents/GitHub/Project/source`
+- Set the build directory to a clean directory, e.g. `C:/Users/DJ/Documents/GitHub/Project/source/build`
 - Click Configure > Visual Studio 2019, everything else default
 - Click Generate
 - Click Open Project
-- Build ColouringBook (can be done by right clicking in the solution explorer)
+- Build the code (can be done by right clicking in the solution explorer)
 
 #### To assign commands arguments in Visual Studio
 - Right click CMakeLists.txt > Add Debug Configuration > Default

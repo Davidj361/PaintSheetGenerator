@@ -2,9 +2,9 @@
 #include "../headers/window.h"
 #include "../headers/helper.h"
 
-Window::Window(Mat& input) : k(3), kmax(10), img(input), cb(img, k) {
+Window::Window(Mat& input) : k(3), kmax(10), img(input), ps(img, k) {
 	type = PROD;
-	title = "Colouring Book";
+	title = "Paint Sheet";
 	trackbarName = "k-value";
 }
 
@@ -27,19 +27,19 @@ void Window::realTrack(int i) {
 
 void Window::draw(bool recalculate, bool dial8) {
 	if (recalculate)
-		cb = ColourBook(img, k, dial8);
+		ps = PaintSheet(img, k, dial8);
 	switch (type) {
 	case ORIG:
-		imshow(title, cb.orig);
+		imshow(title, ps.orig);
 		break;
 	case QUANT:
-		imshow(title, cb.quantized);
+		imshow(title, ps.quantized);
 		break;
 	case QUANT_NOE:
-		imshow(title, cb.quantizedNoEdges);
+		imshow(title, ps.quantizedNoEdges);
 		break;
 	case PROD:
-		imshow(title, cb.product);
+		imshow(title, ps.product);
 		break;
 	}
 }
@@ -71,8 +71,8 @@ void Window::doRun(bool dial8) {
 }
 
 void Window::doSave() {
-	imwrite("colouring_page.jpg", cb.product);
-	cout << "Colouring page saved" << endl;
+	imwrite("paint_sheet.jpg", ps.product);
+	cout << "Paint sheet saved" << endl;
 }
 
 void Window::run() {

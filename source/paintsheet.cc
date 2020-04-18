@@ -1,12 +1,12 @@
-#include "../headers/colourbook.h"
+#include "../headers/paintsheet.h"
 #include "../headers/helper.h"
 
 using namespace std;
 using namespace cv;
 
 
-ColourBook::ColourBook(Mat& input, int k, bool dial8, bool drawBoxes) : orig(input), k(k), drawBoxes(drawBoxes), dial8(dial8) {
-	title = "Colouring Book";
+PaintSheet::PaintSheet(Mat& input, int k, bool dial8, bool drawBoxes) : orig(input), k(k), drawBoxes(drawBoxes), dial8(dial8) {
+	title = "Paint Sheet";
 
 	this->segmenter = Segmenter(orig, k);
 	this->segments = segmenter.getSegments();
@@ -38,7 +38,7 @@ ColourBook::ColourBook(Mat& input, int k, bool dial8, bool drawBoxes) : orig(inp
 	legend.createLegend(quantizedNoEdges, drawBoxes);
 }
 
-void ColourBook::quantize(Mat& input) {
+void PaintSheet::quantize(Mat& input) {
 	Mat overlay_dil(orig.size(), CV_8UC3);
 	subtract(kmeans, ~input, overlay_dil);
 
@@ -49,21 +49,21 @@ void ColourBook::quantize(Mat& input) {
 }
 
 
-void ColourBook::showOrig() {
+void PaintSheet::showOrig() {
 	display(orig, this->title);
 }
 
-void ColourBook::showQuantized() {
+void PaintSheet::showQuantized() {
 	display(quantized, this->title);
 }
 
-void ColourBook::showProduct() {
+void PaintSheet::showProduct() {
 	display(product, this->title);
 }
 
 
 //Dilation functin to increase thicken the edges
-void ColourBook::dilation(int size, int numTimes) {
+void PaintSheet::dilation(int size, int numTimes) {
 	//create kernal for dilation
 	Mat element = getStructuringElement(MORPH_RECT, Size(size, size));
 

@@ -1,5 +1,5 @@
-#ifndef COLOURBOOK_H
-#define COLOURBOOK_H
+#ifndef PAINTSHEET_H
+#define PAINTSHEET_H
 
 #include <iostream>
 #include <exception>
@@ -19,11 +19,11 @@ using namespace std;
 using namespace cv;
 
 
-class ColourBook {
+class PaintSheet {
 public:
 	friend class Window;
 	
-	ColourBook(Mat& input, int k, bool dial8 = true, bool drawBoxes=false);
+	PaintSheet(Mat& input, int k, bool dial8 = true, bool drawBoxes=false);
 
 	void showOrig();
 	void showQuantized();

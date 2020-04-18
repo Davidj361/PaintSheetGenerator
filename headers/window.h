@@ -11,7 +11,7 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/highgui.hpp>
-#include "colourbook.h"
+#include "paintsheet.h"
 
 
 using namespace std;
@@ -28,7 +28,7 @@ private:
 	Mat img;
 	int k, kmax;
 	enum windowType { ORIG, QUANT, QUANT_NOE, PROD } type;
-	ColourBook cb;
+	PaintSheet ps;
 
 	static void onTrackbar(int, void*);
 	void realTrack(int i);
