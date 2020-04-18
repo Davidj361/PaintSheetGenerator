@@ -2,6 +2,9 @@
 
 Generates a paint sheet from an input image. The page is black and white and is numbered to an associating colour legend.
 
+#### To Run & Use
+Run the program in command line and provide the pathname to an image as an argument. Program will then open up a GUI and display where the rest of the interaction is done through keyboard key press.
+
 #### Controls
 
 - `e` is calculate with no dilated edges
@@ -16,7 +19,7 @@ Generates a paint sheet from an input image. The page is black and white and is 
 
 CMake is a multi-platform tool for being able to use whatever toolchain on whatever operating system to build a project.
 
-Below are instructions on how to compile.
+Below are instructions on how to compile the project with CMake.
 The executable should be built in 'build' in the main directory.
 
 ## Windows Compilation
@@ -48,6 +51,6 @@ The executable should be built in 'build' in the main directory.
 
 ## Linux Compilation
 In Linux to use CMake:
-- mkdir build && cd build
-- cmake ..
+- while in the main directory: mkdir build && cd build
+- cmake ../source
 - make
