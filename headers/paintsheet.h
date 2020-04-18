@@ -23,7 +23,7 @@ class PaintSheet {
 public:
 	friend class Window;
 	
-	PaintSheet(Mat& input, int k, bool dial8 = true, bool drawBoxes=false);
+	PaintSheet(Mat& input, int k, string& title, bool dial8 = true, bool drawBoxes=false);
 
 	void showOrig();
 	void showQuantized();

@@ -2,9 +2,8 @@
 #include "../headers/window.h"
 #include "../headers/helper.h"
 
-Window::Window(Mat& input) : k(3), kmax(10), img(input), ps(img, k) {
+Window::Window(Mat& input) : k(3), kmax(10), img(input), title("Paint Sheet Generator"), ps(img, k, title) {
 	type = PROD;
-	title = "Paint Sheet";
 	trackbarName = "k-value";
 }
 
@@ -27,7 +26,7 @@ void Window::realTrack(int i) {
 
 void Window::draw(bool recalculate, bool dial8) {
 	if (recalculate)
-		ps = PaintSheet(img, k, dial8);
+		ps = PaintSheet(img, k, title, dial8);
 	switch (type) {
 	case ORIG:
 		imshow(title, ps.orig);

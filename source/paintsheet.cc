@@ -5,9 +5,7 @@ using namespace std;
 using namespace cv;
 
 
-PaintSheet::PaintSheet(Mat& input, int k, bool dial8, bool drawBoxes) : orig(input), k(k), drawBoxes(drawBoxes), dial8(dial8) {
-	title = "Paint Sheet";
-
+PaintSheet::PaintSheet(Mat& input, int k, string& title, bool dial8, bool drawBoxes) : orig(input), k(k), title(title), drawBoxes(drawBoxes), dial8(dial8) {
 	this->segmenter = Segmenter(orig, k);
 	this->segments = segmenter.getSegments();
 
